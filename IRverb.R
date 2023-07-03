@@ -1,23 +1,25 @@
 ## Front Back zero
+cwd <- getwd()
 library(tuneR)
-setwd("/Users/ryo/Documents/R/R_study/IR_verb/input")
+setwd(paste(cwd, "input", sep = "/"))
 
 window <- function(L) {
     0.54 - 0.46 * cos(2 * pi * c(0:(L - 1)) / (L - 1))
 } # Hamming
-prefixir <- "/Users/ryo/Documents/R/R_study/IR_verb/IR/"
-prefix <- "/Users/ryo/Documents/R/R_study/IR_verb/input/"
+prefixir <- paste(cwd, "IR", sep = "/")
+prefix <- paste(cwd, "input", sep = "/")
 fnames <- list.files(path = prefix, pattern = "*.wav")
 irnames <- list.files(path = prefixir, pattern = "*.wav")
 
 for (filename in fnames) {
     for (irname in irnames) {
+        setwd(paste(cwd, "input", sep = "/"))
         solution <- 0
         solution2 <- 0
         wavl <- readWave(filename)@left
         wavr <- readWave(filename)@right
         srate <- readWave(filename)@samp.rate
-        setwd("/Users/ryo/Documents/R/R_study/IR_verb/IR")
+        setwd(prefixir)
         readir <- readWave(irname)@left
         readirr <- readWave(irname)@right
         len <- min(length(readir), length(wavl))
@@ -60,8 +62,7 @@ for (filename in fnames) {
         solution <- resalt[(len + 1):(len + length(wavl))]
         solution2 <- resalt2[(len + 1):(len + length(wavr))]
         dat <- normalize(Wave(left = solution, right = solution2, samp.rate = srate, bit = 32, pcm = TRUE), unit = "32", center = TRUE)
-        setwd("/Users/ryo/Documents/R/R_study/IR_verb/output")
+        setwd(paste(cwd, "output", sep = "/"))
         writeWave(dat, filename = sprintf("%s_%s.wav", substring(filename, 1, (nchar(filename) - 4)), substring(irname, 1, (nchar(irname) - 4))))
-        setwd("/Users/ryo/Documents/R/R_study/IR_verb/input")
     }
 }
